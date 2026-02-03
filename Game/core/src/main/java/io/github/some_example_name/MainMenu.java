@@ -32,12 +32,12 @@ public class MainMenu implements Screen {
         // Input
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             game.setScreen(new Game(game)); // switch screen
-            dispose();
+            return;
         }
 
         // Draw menu
         batch.begin();
-        font.draw(batch, "Trivia Marathon Java edition", 100, 300);
+        font.draw(batch, "Trivia Marathon LibGDX edition", 100, 300);
         font.draw(batch, "Press ENTER to Start", 100, 250);
         font.draw(batch, "Press ESC to Quit", 100, 220);
         batch.end();
