@@ -38,12 +38,15 @@ public class Game implements Screen {
     private String currentAnswer;
     private String[] currentChoices;
 
+    private String message;
+
     public Game(Main game) {
         this.game = game;
         this.timer = 30.0f;
         this.freezeTimer = 5.0f;
         this.playerScore = 0;
         this.questionCount = 0;
+        this.message = "";
     }
 
     @Override
@@ -94,19 +97,19 @@ public class Game implements Screen {
         }
 
         if (inProgress) {
+
+            batch.begin();
+            font.draw(batch, currentQuestion,200,200);
+            font.draw(batch, "1. " + currentChoices[0],200,180);
+            font.draw(batch,"2. " + currentChoices[1],200,160);
+            font.draw(batch,"3. " + currentChoices[2],200,140);
+            font.draw(batch,"4. " + currentChoices[3],200,120);
+            batch.end();
             if (!frozen) {
                 timer -= delta;
                 if (timer <= 0) {
                     checkAnswer(0);
                 }
-                batch.begin();
-                font.draw(batch, currentQuestion,200,200);
-                font.draw(batch, "1. " + currentChoices[0],200,180);
-                font.draw(batch,"2. " + currentChoices[1],200,160);
-                font.draw(batch,"3. " + currentChoices[2],200,140);
-                font.draw(batch,"4. " + currentChoices[3],200,120);
-                font.draw(batch,"",250,150);
-                batch.end();
 
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
                     checkAnswer(1);
@@ -117,27 +120,48 @@ public class Game implements Screen {
                 } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
                     checkAnswer(4);
                 } else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                    frozen = true;
+                    checkAnswer(5);
                 }
             }
             else {
                 freezeTimer -= delta;
-                // CONTINUE
+                batch.begin();
+                font.draw(batch,message,250,150);
+                batch.end();
+                if (freezeTimer <= 0) {
+                    reset();
+                }
             }
         }
     }
 
+    public void reset() {
+        questionCount++;
+        timer = 30.0f;
+        freezeTimer = 5f;
+        frozen = false;
+
+        setCurrentQuestion();
+    }
+
     public void checkAnswer(int choice) {
+        batch.begin();
         if (choice < 1) { // No answer given
             playerScore -= 10;
+            message = "No answer provided";
+        }
+        else if (choice > 4) { // Skipped question, no score change
+            message = "Question skipped";
         }
         else if (Objects.equals(currentChoices[choice - 1], currentAnswer)) { // Correct answer
             playerScore += 10;
+            message = "Correct answer";
         }
         else if (!(Objects.equals(currentChoices[choice - 1], currentAnswer))){ // Wrong answer
             playerScore -= 5;
+            message = "Incorrect answer";
         }
-        // No score change if question skipped
+        batch.end();
         frozen = true;
     }
 
