@@ -4,11 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -67,10 +71,29 @@ public class Game implements Screen {
 
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        timerLabel = new Label("", skin);
-        scoreLabel = new Label("", skin);
-        questionLabel = new Label("", skin);
         messageLabel = new Label("", skin);
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font1.ttf"));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = 32;
+        parameter.color = Color.BLACK;
+
+        BitmapFont questionFont = generator.generateFont(parameter);
+        generator.dispose();
+
+        Label.LabelStyle questionStyle = new Label.LabelStyle(questionFont, Color.BLACK);
+
+        questionLabel = new Label("", questionStyle);
+        questionLabel.setWrap(true);
+        questionLabel.setAlignment(Align.center);
+
+        timerLabel = new Label("", questionStyle);
+        timerLabel.setAlignment(Align.left);
+
+        scoreLabel = new Label("",questionStyle);
+        scoreLabel.setAlignment(Align.right);
 
         choiceButtons = new TextButton[4];
 
@@ -99,28 +122,31 @@ public class Game implements Screen {
 
         // -------- UI Layout --------
         Table table = new Table();
+        Table questionTable = new Table();
         table.setFillParent(true);
-        table.top().pad(30);
+        questionTable.top().pad(30);
 
-        table.add(timerLabel).left();
+        table.add(timerLabel).colspan(1).left().padRight(50);
         table.add().expandX();
-        table.add(scoreLabel).right();
+        table.add(scoreLabel).colspan(1).width(1000).right().padLeft(50);
         table.row().padTop(40);
 
-        table.add(questionLabel).colspan(3).left().padBottom(30);
+        table.add(questionLabel).colspan(3).width(1000).center().padBottom(80);
         table.row();
 
         for (TextButton btn : choiceButtons) {
-            table.add(btn)
+            questionTable.add(btn)
                 .colspan(3)
                 .width(600)
                 .height(60)
-                .padBottom(15);
+                .padBottom(20);
 
-            table.row();
+            questionTable.row();
         }
 
-        table.add(skipButton).colspan(3).padTop(20);
+        questionTable.add(skipButton).colspan(3).width(100).center().padTop(20);
+
+        table.add(questionTable).colspan(3);
         table.row();
 
         table.add(messageLabel).colspan(3).padTop(30);
@@ -128,9 +154,9 @@ public class Game implements Screen {
         stage.addActor(table);
 
         // -------- Load data --------
-        FileHandle questionsFile = Gdx.files.internal("Questions.txt");
-        FileHandle choicesFile = Gdx.files.internal("Choices.txt");
-        FileHandle answersFile = Gdx.files.internal("Answers.txt");
+        FileHandle questionsFile = Gdx.files.internal("Questions2.txt");
+        FileHandle choicesFile = Gdx.files.internal("Choices2.txt");
+        FileHandle answersFile = Gdx.files.internal("Answers2.txt");
 
         questions = fileManager.readTXTFile(questionsFile);
         choices = fileManager.readTXTFile(choicesFile);
@@ -151,6 +177,16 @@ public class Game implements Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
+        }
+        // Button input
+        else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            checkAnswer(1);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            checkAnswer(2);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            checkAnswer(3);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+            checkAnswer(4);
         }
 
         if (inProgress) {
@@ -182,14 +218,19 @@ public class Game implements Screen {
             message = "Game Over!";
             game.setScreen(new GameOver(game,playerScore));
         }
-
-        currentQuestion = questions.get(questionCount);
-        currentAnswer = answers.get(questionCount);
-        currentChoices = choices.get(questionCount).split(",");
+        else {
+            currentQuestion = questions.get(questionCount);
+            currentAnswer = answers.get(questionCount);
+            currentChoices = choices.get(questionCount).split(",");
+        }
     }
 
     private void reset() {
         questionCount++;
+        //System.out.println(questions.size());
+        if (questionCount >= questions.size()) {
+            inProgress = false;
+        }
         timer = 30;
         freezeTimer = 5;
         frozen = false;
@@ -219,9 +260,11 @@ public class Game implements Screen {
         scoreLabel.setText("Points: " + playerScore);
         questionLabel.setText(currentQuestion != null ? currentQuestion : "");
 
-        for (int i = 0; i < 4; i++) {
-            choiceButtons[i].setText((i + 1) + ". " + currentChoices[i]);
-            choiceButtons[i].setDisabled(frozen);
+        if (inProgress) {
+            for (int i = 0; i < 4; i++) {
+                choiceButtons[i].setText((i + 1) + ". " + currentChoices[i]);
+                choiceButtons[i].setDisabled(frozen);
+            }
         }
 
         skipButton.setDisabled(frozen);
