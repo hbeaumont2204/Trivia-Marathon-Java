@@ -244,7 +244,9 @@ public class Game implements Screen {
             message = "No answer given";
         } else if (choice > 4) {
             message = "Question skipped";
-        } else if (Objects.equals(currentChoices[choice - 1], currentAnswer)) {
+        } else if (Objects.equals(currentChoices[choice - 1].trim(), currentAnswer.trim())) {
+            System.out.println(currentChoices[choice - 1]);
+            System.out.println(currentAnswer);
             playerScore += 10;
             message = "Correct!";
         } else {
