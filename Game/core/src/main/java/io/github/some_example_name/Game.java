@@ -197,6 +197,8 @@ public class Game implements Screen {
                     checkAnswer(3); } 
                 else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
                     checkAnswer(4); }
+                else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { // Skip Question
+                    checkAnswer(5); }
             } else {
                 freezeTimer -= delta;
                 if (freezeTimer <= 0) {
@@ -215,7 +217,7 @@ public class Game implements Screen {
     // -------------------------------------------------
 
     private void setCurrentQuestion() {
-        if (questionCount >= questions.size()) {
+        if (questionCount >= questions.size() || playerScore < 0) {
             inProgress = false;
             message = "Game Over!";
             game.setScreen(new GameOver(game,playerScore));
