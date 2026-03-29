@@ -74,7 +74,6 @@ public class Game implements Screen {
 
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        messageLabel = new Label("", skin);
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font1.ttf"));
 
@@ -87,6 +86,8 @@ public class Game implements Screen {
         generator.dispose();
 
         Label.LabelStyle questionStyle = new Label.LabelStyle(questionFont, Color.BLACK);
+
+        messageLabel = new Label("", questionStyle);
 
         questionLabel = new Label("", questionStyle);
         questionLabel.setWrap(true);
@@ -159,18 +160,10 @@ public class Game implements Screen {
 
         stage.addActor(table);
 
-        // -------- Load data --------
-        FileHandle questionsFile = Gdx.files.internal("Questions2.txt");
-        FileHandle choicesFile = Gdx.files.internal("Choices2.txt");
-        FileHandle answersFile = Gdx.files.internal("Answers2.txt");
 
         FileHandle questionPack = Gdx.files.internal("Question_Pack.csv");
         questions = fileManager.readCSVFile(questionPack);
 
-        /* 
-        questions = fileManager.readTXTFile(questionsFile);
-        choices = fileManager.readTXTFile(choicesFile);
-        answers = fileManager.readTXTFile(answersFile); */
 
         setCurrentQuestion();
         updateUI();
@@ -188,16 +181,6 @@ public class Game implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-        // Button input
-        else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            checkAnswer(1);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            checkAnswer(2);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            checkAnswer(3);
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
-            checkAnswer(4);
-        }
 
         if (inProgress) {
             if (!frozen) {
@@ -205,6 +188,15 @@ public class Game implements Screen {
                 if (timer <= 0) {
                     checkAnswer(0);
                 }
+                // Button input
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+                    checkAnswer(1); } 
+                else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+                    checkAnswer(2); } 
+                else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+                    checkAnswer(3); } 
+                else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+                    checkAnswer(4); }
             } else {
                 freezeTimer -= delta;
                 if (freezeTimer <= 0) {
@@ -229,11 +221,6 @@ public class Game implements Screen {
             game.setScreen(new GameOver(game,playerScore));
         }
         else {
-            /* 
-            currentQuestion = questions.get(questionCount);
-            currentAnswer = answers.get(questionCount);
-            currentChoices = choices.get(questionCount).split(","); */
-            
             currentQuestion = (questions.get(questionCount))[0]; // Question is index 0
             currentAnswer = (questions.get(questionCount))[5]; // Answer is index 5
             currentChoices = new String[]{(questions.get(questionCount))[1], (questions.get(questionCount))[2], 
