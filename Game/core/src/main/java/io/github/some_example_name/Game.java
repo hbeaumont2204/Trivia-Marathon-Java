@@ -41,9 +41,12 @@ public class Game implements Screen {
     private boolean inProgress = true;
     private boolean frozen = false;
 
+    /* 
     private ArrayList<String> questions;
     private ArrayList<String> choices;
-    private ArrayList<String> answers;
+    private ArrayList<String> answers; */
+
+    private ArrayList<String[]> questions;
 
     private double timer = 30;
     private double freezeTimer = 5;
@@ -120,7 +123,10 @@ public class Game implements Screen {
             }
         });
 
-        // -------- UI Layout --------
+        // -----------------------
+        // UI Layout
+        // -----------------------
+
         Table table = new Table();
         Table questionTable = new Table();
         table.setFillParent(true);
@@ -158,9 +164,13 @@ public class Game implements Screen {
         FileHandle choicesFile = Gdx.files.internal("Choices2.txt");
         FileHandle answersFile = Gdx.files.internal("Answers2.txt");
 
+        FileHandle questionPack = Gdx.files.internal("Question_Pack.csv");
+        questions = fileManager.readCSVFile(questionPack);
+
+        /* 
         questions = fileManager.readTXTFile(questionsFile);
         choices = fileManager.readTXTFile(choicesFile);
-        answers = fileManager.readTXTFile(answersFile);
+        answers = fileManager.readTXTFile(answersFile); */
 
         setCurrentQuestion();
         updateUI();
@@ -219,9 +229,15 @@ public class Game implements Screen {
             game.setScreen(new GameOver(game,playerScore));
         }
         else {
+            /* 
             currentQuestion = questions.get(questionCount);
             currentAnswer = answers.get(questionCount);
-            currentChoices = choices.get(questionCount).split(",");
+            currentChoices = choices.get(questionCount).split(","); */
+            
+            currentQuestion = (questions.get(questionCount))[0]; // Question is index 0
+            currentAnswer = (questions.get(questionCount))[5]; // Answer is index 5
+            currentChoices = new String[]{(questions.get(questionCount))[1], (questions.get(questionCount))[2], 
+                (questions.get(questionCount))[3], (questions.get(questionCount))[4]}; // Choices are index 1-4
         }
     }
 
@@ -274,7 +290,7 @@ public class Game implements Screen {
     }
 
     // -------------------------------------------------
-    // REQUIRED OVERRIDES
+    // OVERRIDES
     // -------------------------------------------------
 
     @Override

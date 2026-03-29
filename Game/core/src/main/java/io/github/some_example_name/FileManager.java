@@ -29,4 +29,21 @@ public class FileManager {
       return lines;
   }
 
+  public ArrayList<String[]> readCSVFile(FileHandle file) {
+      ArrayList<String[]> lines = new ArrayList<String[]>();
+
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.read()))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+              String[] fields = line.split(",");
+              lines.add(fields);
+          }
+      } catch (IOException e) {
+          System.out.println("READ ERROR with file: " + file);
+          e.printStackTrace();
+      }
+
+      return lines;
+  }
+
 }
